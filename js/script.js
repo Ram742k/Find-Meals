@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     populateIngredients();
-    loadAllRecipes();
+    await loadAllRecipes();
 });
 
 const searchBtn = document.getElementById('search-btn');
@@ -10,21 +10,21 @@ const recipeCloseBtn = document.getElementById('recipe-close-btn');
 const searchInput = document.getElementById('search-input');
 const searchIngredients = document.getElementById('search-ingredients');
 
-searchBtn.addEventListener('click', function() {
-    getMealList();
+searchBtn.addEventListener('click', async function() {
+    await getMealList();
 });
 
 
-function populateIngredients() {
+async function populateIngredients() {
     const ingredients = ['Chicken', 'Beef', 'Pork', 'Fish', 'Vegetables', 'Pasta', 'Rice', 'Potatoes', 'Beans', 'Cheese', 'Lamb', 'Shrimp', 'Tofu', 'Eggs', 'Salmon', 'Turkey', 'Spinach', 'Quinoa', 'Mushrooms', 'Broccoli'];
 
     ingredients.forEach(function(ingredient) {
         const label = document.createElement('label');
         label.textContent = ingredient;
         label.classList.add('ingredient-label');
-        label.addEventListener('click', function() {
+        label.addEventListener('click', async function() {
             searchInput.value = ingredient;
-            getMealList();
+            await getMealList();
         });
         searchIngredients.appendChild(label);
     });
@@ -33,38 +33,31 @@ function populateIngredients() {
 
 
 
-function loadAllRecipes() {
-    fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=`)
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(data) {
+async function loadAllRecipes() {
+    try {
+        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=`);
+        const data = await response.json();
         displayMeals(data.meals);
-    })
-    .catch(function(error) {
+    } catch (error) {
         console.error('Error fetching all recipes:', error);
-    });
+    }
 }
 
 
-function getMealList() {
+async function getMealList() {
     let searchInputTxt = document.getElementById('search-input').value.trim();
     if (searchInputTxt === '') {
-        
-        loadAllRecipes();
+        await loadAllRecipes();
         return;
     }
 
-    fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${searchInputTxt}`)
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(data) {
+    try {
+        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${searchInputTxt}`);
+        const data = await response.json();
         displayMeals(data.meals);
-    })
-    .catch(function(error) {
+    } catch (error) {
         console.error('Error fetching meal list:', error);
-    });
+    }
 }
 
 
@@ -99,20 +92,17 @@ mealList.addEventListener('click', function(e) {
 });
 
 
-function getMealRecipe(e) {
+async function getMealRecipe(e) {
     e.preventDefault();
     if (e.target.classList.contains('recipe-btn')) {
         let mealItem = e.target.parentElement.parentElement;
-        fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealItem.dataset.id}`)
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
+        try {
+            const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealItem.dataset.id}`);
+            const data = await response.json();
             mealRecipeModal(data.meals);
-        })
-        .catch(function(error) {
+        } catch (error) {
             console.error('Error fetching meal recipe:', error);
-        });
+        }
     }
 }
 
